@@ -10,7 +10,11 @@
 import os
 import time
 import urllib
-import urllib2
+try:  
+    from urllib2 import urlopen
+except ImportError:  
+    from urllib.request import urlopen
+
 from bs4 import BeautifulSoup
 
 hitCounter = 0  # The hit counter tels us when to pause the download so that Pokemon.com doesn't give us a 503 error
@@ -44,14 +48,14 @@ def makesoup(currentUrl):
         time.sleep(60)
         print("re-establishing connection...")
         # Connect to a different site to reset the connection to Pokemon
-        response = urllib2.urlopen('https://www.google.com')
+        response = urlopen('https://www.google.com')
         response.close()
         hitCounter = 0
     print("Calling URL: {}".format(currentUrl))
 
     for attempt in range(1, 3):
         try:
-            response = urllib2.urlopen(currentUrl)
+            response = urlopen(currentUrl)
             soup = BeautifulSoup(response.read(), 'html.parser')
             time.sleep(1)
             response.close()
@@ -123,7 +127,10 @@ def getAllByEnergyType(energyType = '', spec_range=[1, 99]):
                     newFileName = cleanpokemonName + '_' + origfileName
                     # check for the a pre-existing copy of this file and write to disk
                     if os.path.isfile('./images/' + dirName + '/' + newFileName) is not True:
-                        urllib.urlretrieve(imgUrl, './images/' + dirName + '/' + newFileName)
+                        try:
+                          urllib.urlretrieve(imgUrl, './images/' + dirName + '/' + newFileName)
+                        except:
+                          urllib.request.urlretrieve(imgUrl, './images/' + dirName + '/' + newFileName)
                         print("downloaded {}".format(newFileName))
                     time.sleep(1)
             except ValueError as e:
